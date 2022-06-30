@@ -1,13 +1,18 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.8.0;
+// problème de retard sur l'acquisition du random number
+
+pragma solidity ^0.8.7;
 
 import "https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/access/Ownable.sol";
+import "https://github.com/smartcontractkit/chainlink/blob/develop/contracts/src/v0.8/interfaces/VRFCoordinatorV2Interface.sol";
+import "https://github.com/smartcontractkit/chainlink/blob/develop/contracts/src/v0.8/VRFConsumerBaseV2.sol";
 
-contract HotGame is Ownable {
+contract HotGame is VRFConsumerBaseV2, Ownable {
 
-    uint256 _fee;   // fee in wei
-    address _owner;
+    event NewHotGame(GameData); // event triggered for each game newly created
+    event HotGameClaimBack(GameData); // event triggered for each game canceled
+    event HotGameFinished(GameData, address); // event triggered when is played, second arg is the winner
 
     struct GameData {
         string  gameId;     // used to link the back of this wonderful DApp
@@ -15,17 +20,45 @@ contract HotGame is Ownable {
         uint256 bet;        // bet value, set in wei
         uint256 submitTime; // Timestamp of the launching game
     }
+    
+    uint256 _fee;   // fee in wei
+    address _owner;
+    GameData[] public games;
 
-    constructor(uint256 fee) {
+    uint256 public randomInt;
+    // uint256 public prev_randomInt;
+    uint256 public requestId;
+
+    uint64 s_subscriptionId; // must be 210 for fuji-testnet
+    address vrfCoordinator = 0x2eD832Ba664535e5886b75D64C46EB9a228C2610; // (fuji-testnet)
+    bytes32 s_keyHash = 0x354d2f95da55398f44b7cff77da56283d9c6c829a4bdf1bbcaf2ad6a4d081f61; // (fuji-testnet)
+    uint32 callbackGasLimit = 100000;
+    uint16 requestConfirmations = 3;
+    uint32 numWords =  1;
+    VRFCoordinatorV2Interface COORDINATOR;
+
+    constructor(uint256 fee, uint64 subscriptionId) VRFConsumerBaseV2(vrfCoordinator) {
         _fee = fee; // set first fee
         _owner = msg.sender;
+        s_subscriptionId = subscriptionId;
+        COORDINATOR = VRFCoordinatorV2Interface(vrfCoordinator);
     }
 
-    event NewHotGame(GameData); // event triggered for each game newly created
-    event HotGameClaimBack(GameData); // event triggered for each game canceled
-    event HotGameFinished(GameData, address); // event triggered when is played, second arg is the winner
+    function requestRandomWords() internal {
+        // Will revert if subscription is not set and funded.
+        requestId = COORDINATOR.requestRandomWords(
+        s_keyHash,
+        s_subscriptionId,
+        requestConfirmations,
+        callbackGasLimit,
+        numWords
+        );
+    }
 
-    GameData[] public games;
+    function fulfillRandomWords(uint256 /* requestId */,uint256[] memory randomWords) internal override {
+        // prev_randomInt = randomInt;
+        randomInt = (randomWords[0] % 100) + 1; // 1 to 100
+    }
 
     function createHotGame(string memory gameId, uint256 bet) public payable returns(bool) {
         require(_gameIdCheck(gameId), "gameId already exist");
@@ -41,7 +74,6 @@ contract HotGame is Ownable {
 
     function playHotGame(string memory gameIdToPlay) public payable {
         uint256 gameIndex = 0;
-        uint    randInt;
 
         for (uint256 i = 0; i < games.length; i++) {
             if (keccak256(abi.encodePacked(games[i].gameId)) == keccak256(abi.encodePacked(gameIdToPlay)))
@@ -50,10 +82,14 @@ contract HotGame is Ownable {
         require(gameIndex >= 0, "game not found");    // gameId not found 
         require(msg.value - _fee == games[gameIndex].bet, "value not fitting bet"); // if not => value not corresponding to bet
         payable(_owner).transfer(_fee);
-        
-        randInt = _random(); // 0 < randInt < 11499
+
+        // randInt = _random(); // 0 < randInt < 11499
+        requestRandomWords();
+
+        // require(prev_randomInt != randomInt);
+
         // submitter Win
-        if (randInt > 5749) {
+        if (randomInt > 5749) {
             payable(games[gameIndex].submitter).transfer(games[gameIndex].bet * 2);
             emit HotGameFinished(games[gameIndex], games[gameIndex].submitter);
         }
