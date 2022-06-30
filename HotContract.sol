@@ -1,7 +1,5 @@
 // SPDX-License-Identifier: MIT
 
-// Il faut garder en mémoire les fees à la hotGameCreation ? 
-
 pragma solidity ^0.8.0;
 
 import "https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/access/Ownable.sol";
@@ -15,7 +13,7 @@ contract HotGame is Ownable {
         string  gameId;     // used to link the back of wonderful DApp
         address playerOne;  // first player who created the game
         uint256 bet;        // bet value, set in wei
-        uint256 submitTime; // Timestamp of the launching game (bet will be given back within one week delay)
+        uint256 submitTime; // Timestamp of the launching game
     }
 
     constructor(uint256 fee) {
@@ -25,19 +23,19 @@ contract HotGame is Ownable {
 
     event NewHotGame(GameData); // event triggered for each game newly created
     event HotGameClaimBack(GameData); // event triggered for each game canceled
-    event HotGameFinished(GameData, address); // event triggered when is played, address is the winner
+    event HotGameFinished(GameData, address); // event triggered when is played, second arg is the winner
 
     GameData[] public games;
 
     function createHotGame(
         string memory gameId,
-        address playerOne,
         uint256 bet
     ) public payable returns(bool) {
-        // require(msg.value - _fee == bet, "value is not fitting bet"); // bet announced is corresponding to msg.value
+        require(_gameIdCheck(gameId), "gameId already exist");
+        require(msg.value - _fee == bet, "value is not fitting bet"); // bet announced is corresponding to msg.value
         payable(_owner).transfer(_fee);
         GameData memory newGame;
-        newGame = GameData(gameId, playerOne, bet, block.timestamp);
+        newGame = GameData(gameId, msg.sender, bet, block.timestamp);
 
         games.push(newGame);
         emit NewHotGame(newGame);
@@ -56,10 +54,10 @@ contract HotGame is Ownable {
         require(msg.value - _fee == games[gameIndex].bet, "value not fitting bet"); // if not => value not corresponding to bet
         payable(_owner).transfer(_fee);
         
-        randInt = _random();
+        randInt = _random(); // 0 < randInt < 11499
         // playerOne Win
-        if (randInt > 50) {
-            payable(games[gameIndex].playerOne).transfer(games[gameIndex].bet);
+        if (randInt > 5749) {
+            payable(games[gameIndex].playerOne).transfer(games[gameIndex].bet * 2);
             emit HotGameFinished(games[gameIndex], games[gameIndex].playerOne);
         }
         // playerTwo Win
@@ -78,8 +76,8 @@ contract HotGame is Ownable {
             if (keccak256(abi.encodePacked(games[i].gameId)) == keccak256(abi.encodePacked(gameIdClaimed)))
                 gameIndex = i;
         }
-        require(gameIndex >= 0);    // gameId not found
-        require(msg.sender == games[gameIndex].playerOne);  // sender is the submitter
+        require(gameIndex >= 0, "gameId not found");
+        require(msg.sender == games[gameIndex].playerOne, "sender is not the submitter");
         payable(msg.sender).transfer(games[gameIndex].bet);
 
         // games[gameIndex].playerOne = address(0) ?
@@ -87,10 +85,6 @@ contract HotGame is Ownable {
         delete games[gameIndex];
         _reorderArray(gameIndex);   // to order elements in games array and get correct length
         return true;
-    }
-
-    function getGames() public view  returns(GameData[] memory){
-        return games;
     }
 
     function setFee(uint256 newFee) onlyOwner public returns(bool) {
@@ -105,7 +99,27 @@ contract HotGame is Ownable {
         games.pop();
     }
 
-    function _random() private view returns (uint) {
-        return uint(keccak256(abi.encodePacked(block.difficulty, block.timestamp, games.length)));
+    function _random() public view returns (uint) { // will be truly random in HOTGAME V2 with chainlink
+        return uint(keccak256(abi.encodePacked(block.difficulty, block.timestamp, games.length))) / 10**(73);
+    }
+
+    function _gameIdCheck(string memory idToCheck) private view returns(bool) {
+        for (uint i = 0; i < games.length; i++) {
+            if (keccak256(abi.encodePacked(games[i].gameId)) == keccak256(abi.encodePacked(idToCheck)))
+                return false;
+        }
+        return true;
+    }
+
+    function getGames() public view returns(GameData[] memory){
+        return games;
+    }
+
+    function getContractStock() public view returns(uint){
+        return address(this).balance;
+    }
+
+    function getFee() public view  returns(uint){
+        return _fee;
     }
 }
