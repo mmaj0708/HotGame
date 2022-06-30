@@ -10,8 +10,8 @@ contract HotGame is Ownable {
     address _owner;
 
     struct GameData {
-        string  gameId;     // used to link the back of wonderful DApp
-        address playerOne;  // first player who created the game
+        string  gameId;     // used to link the back of this wonderful DApp
+        address submitter;  // first player who created the game
         uint256 bet;        // bet value, set in wei
         uint256 submitTime; // Timestamp of the launching game
     }
@@ -27,10 +27,7 @@ contract HotGame is Ownable {
 
     GameData[] public games;
 
-    function createHotGame(
-        string memory gameId,
-        uint256 bet
-    ) public payable returns(bool) {
+    function createHotGame(string memory gameId, uint256 bet) public payable returns(bool) {
         require(_gameIdCheck(gameId), "gameId already exist");
         require(msg.value - _fee == bet, "value is not fitting bet"); // bet announced is corresponding to msg.value
         payable(_owner).transfer(_fee);
@@ -55,14 +52,14 @@ contract HotGame is Ownable {
         payable(_owner).transfer(_fee);
         
         randInt = _random(); // 0 < randInt < 11499
-        // playerOne Win
+        // submitter Win
         if (randInt > 5749) {
-            payable(games[gameIndex].playerOne).transfer(games[gameIndex].bet * 2);
-            emit HotGameFinished(games[gameIndex], games[gameIndex].playerOne);
+            payable(games[gameIndex].submitter).transfer(games[gameIndex].bet * 2);
+            emit HotGameFinished(games[gameIndex], games[gameIndex].submitter);
         }
         // playerTwo Win
         else {
-            payable(msg.sender).transfer(games[gameIndex].bet);
+            payable(msg.sender).transfer(games[gameIndex].bet * 2);
             emit HotGameFinished(games[gameIndex], msg.sender);
         }
         delete games[gameIndex];
@@ -77,10 +74,10 @@ contract HotGame is Ownable {
                 gameIndex = i;
         }
         require(gameIndex >= 0, "gameId not found");
-        require(msg.sender == games[gameIndex].playerOne, "sender is not the submitter");
+        require(msg.sender == games[gameIndex].submitter, "sender is not the submitter");
         payable(msg.sender).transfer(games[gameIndex].bet);
 
-        // games[gameIndex].playerOne = address(0) ?
+        // games[gameIndex].submitter = address(0) ?
         emit HotGameClaimBack(games[gameIndex]);
         delete games[gameIndex];
         _reorderArray(gameIndex);   // to order elements in games array and get correct length
