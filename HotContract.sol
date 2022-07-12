@@ -38,16 +38,18 @@ contract HotGame is VRFConsumerBaseV2, Ownable {
     event HotGameClaimBack(GameData); // event triggered for each game canceled
     event HotGameFinished(GameData, address); // event triggered when is played, second arg is the winner
 
-    enum gameStatus{ CREATED, RANDOM_REQUESTED }
+    enum gameStatus{ CREATED, RANDOM_REQUESTED, FINISHED, CANCELED }
 
     struct GameData {
-        string  gameId;             // used to link the back of this wonderful DApp
+        string  gameId;             // to link the back of this wonderful DApp
         address submitter;          // first player who created the game
         address player;             // first player who created the game
         uint256 bet;                // bet value, set in wei
         uint256 submitTime;         // Timestamp of the launching game
         uint256 randomRequestId;    // request ID to identify for which game is the random number
-        gameStatus  status;         // used to know the state of game (created or in random requesting)
+        uint256 randomNumber;       // True provable random number generated with chainlink
+        address winner;             // winner of the game
+        gameStatus  status;         // to know the state of game (created or in random requesting)
     }
     
     uint256 _fee;   // fee in wei
@@ -55,8 +57,9 @@ contract HotGame is VRFConsumerBaseV2, Ownable {
 
     mapping(string => GameData) public games;
     mapping(uint => GameData) public randReq;
+    string []  gameIdTab;
 
-    uint64 s_subscriptionId; // must be 210 for fuji-testnet
+    uint64 s_subscriptionId; // must be 210
     address vrfCoordinator = 0x2eD832Ba664535e5886b75D64C46EB9a228C2610; // (fuji-testnet)
     bytes32 s_keyHash = 0x354d2f95da55398f44b7cff77da56283d9c6c829a4bdf1bbcaf2ad6a4d081f61; // (fuji-testnet)
     uint32 callbackGasLimit = 100000;
@@ -87,26 +90,32 @@ contract HotGame is VRFConsumerBaseV2, Ownable {
     function fulfillRandomWords(uint256 requestId, uint256[] memory randomWords) internal override {
         uint256  randomInt = (randomWords[0] % 100) + 1;
 
+        games[randReq[requestId].gameId].randomNumber = randomInt;
         if (randomInt > 50) { // submitter Win
+            games[randReq[requestId].gameId].winner = games[randReq[requestId].gameId].submitter;
             payable(randReq[requestId].submitter).transfer(randReq[requestId].bet * 2);
             emit HotGameFinished(randReq[requestId], randReq[requestId].submitter);
         }
         else { // player Win
+            games[randReq[requestId].gameId].winner = games[randReq[requestId].gameId].player;
             payable(randReq[requestId].player).transfer(randReq[requestId].bet * 2);
             emit HotGameFinished(randReq[requestId], randReq[requestId].player);
         }
-        delete games[randReq[requestId].gameId];
-        delete randReq[requestId];
+        games[randReq[requestId].gameId].status = gameStatus.FINISHED;
+        randReq[requestId].status = gameStatus.FINISHED;
     }
 
     function createHotGame(string memory gameId, uint256 bet) public payable {
+        require(bet > 0, "bet must be superior to zero");
+        // require(gameId.length > 100, "game Id is too long");
         require(games[gameId].submitter == address(0), "game Id already exist");
         require(msg.value - _fee == bet, "value is not fitting bet");
         payable(_owner).transfer(_fee);
         GameData memory newGame;
-        newGame = GameData(gameId, msg.sender, address(0), bet, block.timestamp, 0, gameStatus.CREATED);
+        newGame = GameData(gameId, msg.sender, address(0), bet, block.timestamp, 0, 0, address(0), gameStatus.CREATED);
 
         games[gameId] = newGame;
+        gameIdTab.push(gameId);
         emit NewHotGame(newGame);
     }
 
@@ -120,7 +129,7 @@ contract HotGame is VRFConsumerBaseV2, Ownable {
         payable(_owner).transfer(_fee);
 
         games[gameIdToPlay].randomRequestId = requestRandomWords();
-        randReq[games[gameIdToPlay].randomRequestId] = games[gameIdToPlay];
+        randReq[games[gameIdToPlay].randomRequestId] = games[gameIdToPlay]; // map the requestId to the game
         games[gameIdToPlay].status = gameStatus.RANDOM_REQUESTED;
 
         // now player must wait for the random number to be send to fullfillRandomWords()
@@ -135,11 +144,45 @@ contract HotGame is VRFConsumerBaseV2, Ownable {
         payable(msg.sender).transfer(games[gameIdClaimed].bet);
 
         emit HotGameClaimBack(games[gameIdClaimed]);
-        delete games[gameIdClaimed];
+        // delete games[gameIdClaimed];
+        games[gameIdClaimed].status = gameStatus.CANCELED;
     }
 
     function setFee(uint256 newFee) onlyOwner public {
         _fee = newFee;
+    }
+
+    function getGames(string memory status) public view returns(GameData[] memory) {
+        gameStatus  filter;
+        uint        respSize = 0;
+
+        if (keccak256(abi.encodePacked(status)) == keccak256(abi.encodePacked("CREATED")))
+            filter = gameStatus.CREATED;
+        else if (keccak256(abi.encodePacked(status)) == keccak256(abi.encodePacked("RANDOM_REQUESTED")))
+            filter = gameStatus.RANDOM_REQUESTED;
+        else if (keccak256(abi.encodePacked(status)) == keccak256(abi.encodePacked("FINISHED")))
+            filter = gameStatus.FINISHED;
+        else if (keccak256(abi.encodePacked(status)) == keccak256(abi.encodePacked("CANCELED")))
+            filter = gameStatus.CANCELED;
+        else 
+            return (new GameData[](0));
+
+        // to know the size response
+        for (uint i; i < gameIdTab.length; i++)
+            if (games[gameIdTab[i]].status == filter)
+                respSize++;
+
+        GameData [] memory resp = new GameData[](respSize + 1);
+
+        for(uint i; i < gameIdTab.length; i++)
+            if (games[gameIdTab[i]].status == filter)
+                resp[respSize--] = games[gameIdTab[i]];
+
+        return (resp);
+    }
+
+    function getGameIds() public view returns(string [] memory) {
+        return (gameIdTab);
     }
 
     function getContractStock() public view returns(uint){
