@@ -22,10 +22,6 @@
 ** to the contract address, which is mandatory to generate fully random number.
 */
 
-
-// utiliser une librairie pour accéder à tous les éléments de map ?
-// améliorer le delete en décalant les éléments de map ?
-
 pragma solidity ^0.8.7;
 
 import "https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/access/Ownable.sol";
