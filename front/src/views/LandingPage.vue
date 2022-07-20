@@ -29,16 +29,40 @@
       </v-col>
 
     </v-row>
-    <v-col class="mb-4">
 
-      <h2 class="text-center font-weight-regular">
-        <h4>No subscription needed</h4>
-        <h4>Connect your Metamask Wallet </h4>
-        <h4 class="d-flex justify-center">Win some AVAX 
-          <v-img max-width="40" class="ml-2" src="https://s2.coinmarketcap.com/static/img/coins/64x64/5805.png" width="30px"></v-img>
-        </h4>
-      </h2>
-    </v-col>
+    <div class="d-flex flex-row justify-center ml-5 mt-5">
+      <h2 class="mr-1">Requirements: </h2>
+        <ul>
+          <li class=""> Connect your Metamask Wallet <div style="display:inline-block" > <v-img class="pb-3" width="25" contain src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/36/MetaMask_Fox.svg/1200px-MetaMask_Fox.svg.png"></v-img> </div> </li>
+          <li class="mt-1"> Add <a href="https://medium.com/seedify/how-to-add-an-avalanche-c-chain-rpc-to-metamask-e8f08979a8a8"> C-Chain network</a> (real mode) or <a href="https://hurricaneswap.medium.com/tutorial-for-hurricaneswap-testnet-ce57c14ee652">Fuji testnet</a> (test mode) </li>
+          <li> Win some AVAX <div style="display:inline-block" > <v-img class="pb-3" width="25" contain src="https://s2.coinmarketcap.com/static/img/coins/64x64/5805.png"></v-img> </div> </li>
+        </ul>
+    </div>
+
+    <div class="ml-5 mt-5">
+      <h2> Description </h2>
+      <p class="mt-2">
+        This is a fully decentralized Head or Tails game build on the Avalanche blockchain,
+        working with Metamask Wallets. <br> <br>
+        
+        You can currently win AVAX with a 50% chance of winning, betting with others players. <br>
+        All created games are stored in the blockchain, waiting for someone to gamble with. <br> <br>
+
+        The BET BROWSER section allows you to see the currently available bets on the smart contract and play. <br>
+        The CREATE GAME section allows you to create a game by telling how much you want to bet. <br>
+        Once you create a bet, you must send the corresponding amount of AVAX to the smart contract who will keep it safe
+        until someone play on your game, but don't worry, this front site has automated everything ! <br> <br>
+
+        You always have the possibility to cancel your game later and get back your AVAX, but you will need the
+        Metamask address that you used to create the game, and additionnaly, it will just cost you the gas fee. <br> <br>
+
+        Each random number is generated using <a href="https://docs.chain.link/docs/intermediates-tutorial/"> Chainlink VRF</a>,
+        which means it is a truly provable random number who is generated for each game. <br> 
+        Pure randomness comes with a cost, and in order to play HOT games, you have to pay a randomness fee that will feed the Chainlink contract. <br> <br>
+
+        Feel free to ask anything or make any feedback on the <a href=""> discord community</a> and we will answer as soon as possible.
+      </p>
+    </div>
   </v-container>
 </template>
 

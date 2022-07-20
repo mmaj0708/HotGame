@@ -5,12 +5,11 @@ Vue.use(Vuex)
 
 export default new Vuex.Store({
   state: {
-    web3: {
       fee: null,
       chainId: null,
       userAccount: null,
-      },
-      contractInstance: null
+      contractInstance: null,
+      avaxPrice: null
   },
   getters: {
     getUserAccount(state) {
@@ -18,6 +17,9 @@ export default new Vuex.Store({
     },
     getChainId(state) {
       return state.chainId;
+    },
+    getAvaxPrice(state) {
+      return state.avaxPrice;
     }
   },
   mutations: {
@@ -26,7 +28,10 @@ export default new Vuex.Store({
     },
     setChainId : (state, chainId) => {
       state.chainId = chainId;
-    }
+    },
+    setAvaxPrice : (state, price) => {
+      state.avaxPrice = price;
+    },
   },
   actions: {
   },

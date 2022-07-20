@@ -1,141 +1,234 @@
 <template>
-    <div class="text-center">
-        <v-dialog persistent v-model="dialog" width="500">
-        <template v-slot:activator="{ on, attrs }">
-            <v-col class="mb-4" cols="12">
-                <v-btn :disabled="isDisabled" v-bind="attrs" v-on="on" color="green" x-large height="100" class="text-h3"> CREATE </v-btn>
-            </v-col>
-        </template>
+  <v-container>
+  <v-card class="mx-auto">
+    <v-container fluid>
+		<h1 class="text-center mb-3">
+			BET BROWSER
+		</h1>
+		<div class="text-center mb-5" style="font-size: 13px;">
+			Once you played, game result can take few seconds, just be patient !
+		</div>
+      <v-card v-if="cards.length == 0">
+        NO GAMES CURRENTLY, BUT YOU CAN CREATE YOURS !
+        <v-btn to="/create" color="blue" class="ml-2"> CREATE! </v-btn>
+      </v-card> 
+      <v-row v-else>
+		
+        <v-col cols="6" v-for="(card, index) in cards" :key="index">
+          <v-card id="hotCard" width="100%" color="primary">
+            <v-img class="" src="../assets/bitcoin-token.jpg" height="200" gradient="to bottom, rgba(0,0,0,.3), rgba(0,0,0,.5)">
+              <v-card-title class="ml-5">
+                <v-icon>mdi-account</v-icon>
+                <span style="font-size: 12px;"> {{card.gameSubmitter.slice(0, 5) + '...' + card.gameSubmitter.slice(38)}} </span>
+              </v-card-title>
+              <v-card-subtitle class="ml-5 mb-n5 font-weight-bold d-flex flex-row">
+                for {{card.gamePrice}}
+                <span class="mx-2"><v-img src="https://s2.coinmarketcap.com/static/img/coins/64x64/5805.png" width="20px"></v-img> </span>
+                (= {{ (card.gamePrice * $store.getters.getAvaxPrice).toFixed(2) }} $)
+              </v-card-subtitle>
+              <v-card-subtitle class="ml-5">
+                ID : {{card.gameId.slice(0, 7) + '...' + card.gameId.slice(25)}}
+              </v-card-subtitle>
+              <v-card-subtitle>
+                <v-btn v-if="acc" @click="playGame(card)" :disabled="disabled"
+                  color="green"
+                  class="mb-sm-5 mt-n5 ml-5">
+                  PLAY
+                </v-btn>
+                <v-alert v-else> connect wallet </v-alert>
+                  <v-dialog v-model="dialog" persistent width="300">
+                    <v-card color="primary" dark>
+                      <v-card-text>
+                        Connecting to metamask, <br> fee are currently {{ fee * Math.pow(10, -18) }} AVAX
+                        <v-progress-linear
+                          indeterminate
+                          color="white"
+                          class="mb-0"
+                        ></v-progress-linear>
+                      </v-card-text>
+                    </v-card>
+                  </v-dialog>
 
-        <v-card width="1000">
-            <v-card-title class="text-h5">
-                Finalize Transaction 
-            </v-card-title>
+                  <v-dialog v-model="claimDialog" persistent width="300">
+                    <v-card color="primary" dark>
+                      <v-card-text>
+                        Connecting to metamask, <br> you will get your AVAX in no time !
+                        <v-progress-linear
+                          indeterminate
+                          color="white"
+                          class="mb-0"
+                        ></v-progress-linear>
+                      </v-card-text>
+                    </v-card>
+                  </v-dialog>
 
-            <v-card-subtitle class="mt-1">
-                You are going to create a game with {{price}} AVAX. <br> <br>
-                Game ID : {{ generateGameId() }} <br>
-                (keep this ID if you want to cancel your bet later)
-            </v-card-subtitle>
-
-            <v-card-text class="">
-               Gas fee : 0.05 AVAX (= 0.1$) <br>
-               Transaction fee : {{(this.fee * Math.pow(10, -18)).toFixed(18)}} AVAX
-            </v-card-text>
-
-            <v-divider></v-divider>
-
-            <v-card-actions>
-            <v-spacer></v-spacer>
-            <v-btn color="primary" :loading="loading" @click="createHotGame()">
-                CREATE
-            </v-btn>
-            <v-btn color="red" text :disabled="disabled" @click="dialog = false">
-                CANCEL
-            </v-btn>
-            </v-card-actions>
-        </v-card>
-        </v-dialog>
-
-		<v-snackbar :color="snackColor" outlined v-model="snackbar" timeout="10000">
-			{{ snackText }}
-			<template v-slot:action="{ attrs }">
-			<v-btn color="blue" text v-bind="attrs" @click="snackbar = false">
-				Close
-			</v-btn>
-			</template>
-		</v-snackbar>
-
-    </div>
+                <v-btn @click="claimBack(card)" color="red" :disabled="!(card.gameSubmitter == acc)" width="120" class="mt-sm-n3 ml-sm-5 mb-6"> Claim Back </v-btn>
+              </v-card-subtitle>
+            </v-img>
+          </v-card>
+        </v-col>
+      </v-row>
+    </v-container>
+  </v-card>
+  <v-snackbar color="green" outlined v-model="snackbar" timeout="10000">
+    {{ snackText }}
+    <template v-slot:action="{ attrs }">
+      <v-btn color="blue" text v-bind="attrs" @click="snackbar = false">
+        Close
+      </v-btn>
+    </template>
+  </v-snackbar>
+  </v-container>
 </template>
 
 
-<script>
-import BN from 'bn.js';
+<script lang='ts'>
 import Vue from 'vue';
+import detectEthereumProvider from '@metamask/detect-provider';
 import Web3 from 'web3';
+import BN from 'bn.js';
 
 export default Vue.extend({
-    name: 'CreationDialog',
+    name: 'BrowserPage',
     props: {
-        price: null,
-        gameName: null,
-        gameStatus: null,
+
     },
     data() {
         return {
-            dialog: false,
-			disabled: false,
-			loading: false,
-            gameId: null,
+            cards: [],
+            acc: null,
             fee: null,
-            web3: null,
-            hotContract: null,
-            hotInstance: null,
-			snackText: '',
-			snackbar: false,
-			snackColor: "green",
+            dialog: false,
+            claimDialog: false,
+            snackbar: false,
+            snackText: "",
+            disableNotSubmitter: false,
+			disabled: false
         }
     },
     methods: {
-        generateGameId() {
-            this.gameId = this.gameName + this.price + Date.now();
-            return this.gameId;
-        },
+    async playGame(card) {
+      let errCode;
+      this.dialog = true;
+      this.disabled = true;
+      
+      await this.hotContract.methods.getFee().call().then((resp) => this.fee = resp);
 
-        async createHotGame() {
-			let errcode;
-			this.disabled = true;
-			this.loading = true;
+      let weiPrice = new BN(Web3.utils.toWei(card.gamePrice.toString(10)));
+      let weiValue = weiPrice.add(new BN(this.fee, 10));
 
-            await this.hotContract.methods.getFee().call().then((resp) => this.fee = resp);
-			let weiPrice = new BN(Web3.utils.toWei(this.price));
-			let weiValue = weiPrice.add(new BN(this.fee, 10));
-			console.log(weiValue.toString(10));
-			
-            const transactionParameters = {
-            nonce: '0x00', // ignored by MetaMask
-            gasPrice:25000000000, // customizable by user during MetaMask confirmation.
-            gas: new BN('210000', 16), // gas Limit customizable by user during MetaMask confirmation.
-            to: '0xCCCA8931A81f267980b22bD7360909e2EA8D72Bc', // Required except during contract publications.
-            from: window.ethereum.selectedAddress, // must match user's active address.
-            value: weiValue.toString(10),
-            chainId: this.$store.getters.getChainId, // Used to prevent transaction reuse across blockchains. Auto-filled by MetaMask.
-            };
+      console.log(weiValue.toString(10));
+      console.log("address to play", window.ethereum.selectedAddress);
 
-            await this.hotContract.methods.createHotGame(this.gameId, weiPrice.toString(10)).send(transactionParameters).then((resp) => {
-				console.log(resp);
-				this.snackText = "Bet creation on his way ! You will see your bet in the BET Browser !";
-				this.snackColor = "green";
-				this.snackbar = true;
-				this.disabled = false;
-				this.loading = false;
-				this.dialog = false;
-				}).catch((err) => {
-					errcode = err;
-					this.snackColor = "red";
-					this.snackText = "Oups, something went wrong, try again !";
-					this.snackbar = true;
-					this.disabled = false;
-					this.loading = false;
-					this.dialog = false;
-					console.log(errcode);
-				});
-            await this.hotContract.methods.games(this.gameId).call().then((resp) => console.log(resp));
+      const transactionParameters = {
+      nonce: '0x00',
+      gasPrice:25000000000,
+      gas: new BN('210000', 16),
+      to: '0xCCCA8931A81f267980b22bD7360909e2EA8D72Bc',
+      from: window.ethereum.selectedAddress,
+      value: weiValue.toString(10),
+      chainId: '0x3',
+      };
 
-        }
+      await this.hotContract.methods.playHotGame(card.gameId).send(transactionParameters)
+      .then((resp) => {
+		console.log(resp);
+		this.snackText = "transaction succeeded ! go refresh history to the result !"
+		this.snackbar = true;
+		})
+      .catch((err) => errCode = err.code);
+
+      this.dialog = false;
+      setTimeout(()=> location.reload(), 3000);
+      console.log(errCode);
+
+    //   if (errCode != 4001)
+    //     await this.$http.delete('card/'+ card.gameId).then((response) => {
+    //       console.log("game removed", response);
+    //       this.snackText = "transaction succeeded ! go refresh history to the result !"
+    //       this.snackbar = true;
+    //       // this.getAllCards();
+    //       setTimeout(() => location.reload(), 8000);
+    //     });
+    //   // if (errCode == 4001)
+
+    },
+
+	async claimBack(card) {
+		let errCode;
+		this.claimDialog = true;
+		this.disabled = true;
+
+
+		const transactionParameters = {
+		nonce: '0x00',
+		gasPrice:25000000000,
+		gas: new BN('210000', 16),
+		to: '0xCCCA8931A81f267980b22bD7360909e2EA8D72Bc',
+		from: window.ethereum.selectedAddress,
+		value: 0x0,
+		chainId: '0x3',
+		};
+
+		await this.hotContract.methods.claimBack(card.gameId).send(transactionParameters)
+		.then((resp) => {
+		console.log(resp);
+		this.snackText = "transaction succeeded ! you will see your AVAX in your wallet in few seconds !"
+		this.snackbar = true;
+		})
+		.catch((err) => errCode = err.code);
+
+		this.claimDialog = false;
+		setTimeout(()=> location.reload(), 3000);
+		console.log(errCode);
 	},
-    computed: {
-        isDisabled: function () {
-            if (this.price != null && /^[0-9.]+$/.test(this.price) 
-            && (this.gameName != '' && this.gameName != null))
-                return false;
-            else return true;
+    
+    async getAllCards() {
+      await this.hotContract.methods.getGames('CREATED').call().then((response) => {
+        
+        let i;
+
+        for (i = 1; i < response.length; i++) {
+          this.cards.push({
+              gameId: response[i].gameId,
+              gameName: "NAME_IN_BACK",
+              gamePrice: Web3.utils.fromWei(response[i].bet),
+              gameStatus: "GAME_STATUS_IN_BACK",
+              gameSubmitter: response[i].submitter.toLowerCase()
+            });
         }
+      });
+
+    },
+
+		async initWeb3() {
+      this.provider = await detectEthereumProvider();
+      if (this.provider) {
+          let newChainId = await this.provider.request({method: 'eth_chainId'});
+          this.$store.commit('setChainId', newChainId);
+      } else
+          console.error('Please install MetaMask!')
+      let userAccount = await window.ethereum.request({method: 'eth_accounts'});
+      this.acc = userAccount[0].toLowerCase();
+		},
+    handleAccountsChanged(accounts) {
+        if (accounts.length === 0) {
+            this.acc = null;
+
+        } else { 
+            this.acc = accounts[0].toLowerCase();
+        }
+    },
+    isSubmitted(card) {
+      if (this.acc == String && card.submitter == String)
+      if (this.acc.toLowerCase() == card.submitter.toLowerCase())
+        return true;
+      return false;
+    }
     },
 
     async created() {
-        this.web3 = new Web3(window.ethereum);
+      this.web3 = new Web3(window.ethereum);
 
       this.hotContract = new this.web3.eth.Contract(
       [
@@ -707,15 +800,27 @@ export default Vue.extend({
 		"stateMutability": "view",
 		"type": "function"
 	}
-		], '0x643e87c156A02D6c5796C58cD7539E9F357448D2'
+]
+      , '0x643e87c156A02D6c5796C58cD7539E9F357448D2'
       );
 
-        await this.hotContract.methods.getFee().call().then((resp) => this.fee = resp);
-		
-}
+      await this.hotContract.methods.getFee().call().then((resp) => this.fee = resp);
+      console.log(this.fee);
+      this.getAllCards();
+
+      console.log(this.cards)
+      this.initWeb3();
+      window.ethereum.on('accountsChanged', this.handleAccountsChanged);
+    }
 })
 </script>
 
 <style scoped>
+
+#hotCard { transition: all .2s ease-in-out; }
+
+#hotCard:hover {
+	transform: scale(1.1);
+}
 
 </style>

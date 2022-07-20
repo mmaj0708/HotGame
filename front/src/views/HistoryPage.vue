@@ -5,7 +5,7 @@
     :loading="tableLoader"
     :headers="headers"
     :items="games"
-    :items-per-page="5"
+    :items-per-page="15"
     class="elevation-1"
   ></v-data-table>
 </div>
@@ -35,7 +35,8 @@ export default ({
                 { text: 'Bet', value: 'bet' },
                 { text: 'Player', value: 'player' },
                 { text: 'Winner', value: 'winner' },
-                { text: 'Random Number', value: 'randomNumber' },
+                { text: 'Date', value: 'date' },
+                { text: 'Rand. Nbr.', value: 'randomNumber' },
             ],
             games: [],
         }
@@ -43,20 +44,22 @@ export default ({
     methods: {
     async getAllCards() {
       await this.hotContract.methods.getGames('FINISHED').call().then((response) => {
-        console.log(response);        
+        // console.log(response);        
         let i;
 		let gameId;
+		let date;
 
         for (i = 1; i < response.length; i++) {
-			// if (response[i].gameId.length > )
 			gameId = response[i].gameId.slice(0, 7) + '...' + response[i].gameId.slice(22)
+			date = new Date(response[i].submitTime * 1000)
           this.games.push({
             gameId: gameId,
             submitter: response[i].submitter.toLowerCase().slice(0, 5) + '...' + response[i].submitter.toLowerCase().slice(38),
             bet: Web3.utils.fromWei(response[i].bet),
             player: response[i].player.toLowerCase().slice(0, 5) + '...' + response[i].player.toLowerCase().slice(38),
             winner: response[i].winner.toLowerCase().slice(0, 5) + '...' + response[i].winner.toLowerCase().slice(38),
-            randomNumber: response[i].randomNumber
+            randomNumber: response[i].randomNumber,
+			date:  date.getDate() + '/' + date.getMonth() + '/' + date.getFullYear() + ' ' + date.getHours() + 'h' + date.getMinutes() + 'm' + date.getSeconds() + 's',
             });
         }
         this.tableLoader = false;

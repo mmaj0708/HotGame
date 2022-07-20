@@ -23,10 +23,11 @@
               </v-card-title>
               <v-card-subtitle class="ml-5 mb-n5 font-weight-bold d-flex flex-row">
                 for {{card.gamePrice}}
-                <span class="ml-2"><v-img src="https://s2.coinmarketcap.com/static/img/coins/64x64/5805.png" width="20px"></v-img> </span>
+                <span class="mx-2"><v-img src="https://s2.coinmarketcap.com/static/img/coins/64x64/5805.png" width="20px"></v-img> </span>
+                (= {{ (card.gamePrice * $store.getters.getAvaxPrice).toFixed(2) }} $)
               </v-card-subtitle>
               <v-card-subtitle class="ml-5">
-                game Id : {{card.gameId.slice(0, 5) + '...' + card.gameId.slice(25)}}
+                ID : {{card.gameId.slice(0, 7) + '...' + card.gameId.slice(25)}}
               </v-card-subtitle>
               <v-card-subtitle>
                 <v-btn v-if="acc" @click="playGame(card)" :disabled="disabled"
@@ -126,7 +127,7 @@ export default Vue.extend({
       to: '0xCCCA8931A81f267980b22bD7360909e2EA8D72Bc',
       from: window.ethereum.selectedAddress,
       value: weiValue.toString(10),
-      chainId: '0x3',
+      chainId: this.$store.getters.getChainId,
       };
 
       await this.hotContract.methods.playHotGame(card.gameId).send(transactionParameters)
@@ -140,16 +141,6 @@ export default Vue.extend({
       this.dialog = false;
       setTimeout(()=> location.reload(), 3000);
       console.log(errCode);
-
-    //   if (errCode != 4001)
-    //     await this.$http.delete('card/'+ card.gameId).then((response) => {
-    //       console.log("game removed", response);
-    //       this.snackText = "transaction succeeded ! go refresh history to the result !"
-    //       this.snackbar = true;
-    //       // this.getAllCards();
-    //       setTimeout(() => location.reload(), 8000);
-    //     });
-    //   // if (errCode == 4001)
 
     },
 
@@ -166,7 +157,7 @@ export default Vue.extend({
 		to: '0xCCCA8931A81f267980b22bD7360909e2EA8D72Bc',
 		from: window.ethereum.selectedAddress,
 		value: 0x0,
-		chainId: '0x3',
+		chainId: this.$store.getters.getChainId,
 		};
 
 		await this.hotContract.methods.claimBack(card.gameId).send(transactionParameters)
@@ -804,10 +795,10 @@ export default Vue.extend({
       );
 
       await this.hotContract.methods.getFee().call().then((resp) => this.fee = resp);
-      console.log(this.fee);
+    //   console.log(this.fee);
       this.getAllCards();
 
-      console.log(this.cards)
+    //   console.log(this.cards)
       this.initWeb3();
       window.ethereum.on('accountsChanged', this.handleAccountsChanged);
     }

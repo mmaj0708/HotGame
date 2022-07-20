@@ -16,7 +16,7 @@ Vue.prototype.$http = axios;
 Vue.use(VueMetamask);
 Vue.use(VueAxios, axios);
 
-axios.defaults.baseURL = "http://" + location.hostname + ":" + 3000;
+// axios.defaults.baseURL = "http://" + location.hostname + ":" + 3000;
 
 
 new Vue({

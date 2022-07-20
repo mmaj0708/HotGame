@@ -9,7 +9,6 @@
         </v-toolbar-title>
       </div>
 
-      <div class="text-center">
         <v-menu open-on-hover bottom offset-y>
           <template v-slot:activator="{ on, attrs }">
             <v-btn to="/browser" color="green" dark v-bind="attrs" v-on="on">
@@ -19,22 +18,49 @@
 
           <v-list>
             <v-list-item>
-                <v-btn to="/browser">
+                <v-btn color="green" to="/browser">
                   Browse Games
                 </v-btn>
             </v-list-item>
             <v-list-item>
-                <v-btn to="/create">
+                <v-btn color="green" to="/create">
                   Create Game
                 </v-btn>
             </v-list-item>
+            <v-list-item>
+				<v-btn color="green" to="/history">
+                  History
+				</v-btn>
+            </v-list-item>
           </v-list>
         </v-menu>
-      </div>
 
-      <v-btn to="/history" class="ml-1">
-        History
-      </v-btn>
+        <v-menu open-on-hover bottom offset-y>
+          <template v-slot:activator="{ on, attrs }">
+            <v-btn class="ml-2" to="/browser" color="primary" dark v-bind="attrs" v-on="on">
+              test
+            </v-btn>
+          </template>
+
+          <v-list>
+            <v-list-item>
+                <v-btn color="primary" to="/browser">
+                  Browse Games
+                </v-btn>
+            </v-list-item>
+            <v-list-item>
+                <v-btn color="primary" to="/create">
+                  Create Game
+                </v-btn>
+            </v-list-item>
+            <v-list-item>
+				<v-btn color="primary" to="/history">
+                  History
+				</v-btn>
+            </v-list-item>
+          </v-list>
+        </v-menu>
+
       <v-spacer></v-spacer>
 
       <v-btn v-if="!isUserAccount" :disabled="disabled" :loading="loading" @click="connectWallet" color="primary">
@@ -733,7 +759,11 @@ export default {
       );
 
       await this.hotContract.methods.getFee().call().then((resp) => this.fee = resp);
-      console.log(this.fee);
+    //   console.log(window.ethereum);
+
+      await this.$http.get('https://api.coingecko.com/api/v3/coins/avalanche-2').then(resp => {
+		this.$store.commit('setAvaxPrice', resp.data.market_data.current_price.usd);
+      })
 
     this.initWeb3();
     window.ethereum.on('chainChanged', this.handleChainChanged);
