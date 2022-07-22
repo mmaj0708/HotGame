@@ -100,7 +100,7 @@ export default Vue.extend({
             to: '0xCCCA8931A81f267980b22bD7360909e2EA8D72Bc', // Required except during contract publications.
             from: window.ethereum.selectedAddress, // must match user's active address.
             value: weiValue.toString(10),
-            chainId: this.$store.getters.getChainId, // Used to prevent transaction reuse across blockchains. Auto-filled by MetaMask.
+            chainId: '0x3', // Used to prevent transaction reuse across blockchains. Auto-filled by MetaMask.
             };
 
             await this.hotContract.methods.createHotGame(this.gameId, weiPrice.toString(10)).send(transactionParameters).then((resp) => {

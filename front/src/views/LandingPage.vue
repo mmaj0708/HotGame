@@ -30,7 +30,7 @@
 
     </v-row>
 
-    <div class="d-flex flex-row justify-center ml-5 mt-5">
+    <div class="d-flex flex-row justify-center mt-5">
       <h2 class="mr-1">Requirements: </h2>
         <ul>
           <li class=""> Connect your Metamask Wallet <div style="display:inline-block" > <v-img class="pb-3" width="25" contain src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/36/MetaMask_Fox.svg/1200px-MetaMask_Fox.svg.png"></v-img> </div> </li>
@@ -38,6 +38,10 @@
           <li> Win some AVAX <div style="display:inline-block" > <v-img class="pb-3" width="25" contain src="https://s2.coinmarketcap.com/static/img/coins/64x64/5805.png"></v-img> </div> </li>
         </ul>
     </div>
+
+    <h3 class="text-center mt-5">
+      ⚠️ The game is currently not working on mobile device !
+    </h3>
 
     <div class="ml-5 mt-5">
       <h2> Description </h2>

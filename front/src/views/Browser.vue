@@ -27,7 +27,7 @@
                 (= {{ (card.gamePrice * $store.getters.getAvaxPrice).toFixed(2) }} $)
               </v-card-subtitle>
               <v-card-subtitle class="ml-5">
-                ID : {{card.gameId.slice(0, 7) + '...' + card.gameId.slice(25)}}
+                ID : {{card.gameId.slice(0, 7) + '...' + card.gameId.slice(card.gameId.length - 5)}}
               </v-card-subtitle>
               <v-card-subtitle>
                 <v-btn v-if="acc" @click="playGame(card)" :disabled="disabled"
