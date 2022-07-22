@@ -122,10 +122,26 @@ export default Vue.extend({
       console.log(weiValue.toString(10));
       console.log("address to play", window.ethereum.selectedAddress);
 
+	let estimatedGas = await this.hotContract.methods.playHotGame(card.gameId).estimateGas(
+		{
+			from : window.ethereum.selectedAddress,
+			value : weiValue.toString(10),
+		}, function(error, estimatedGas) {
+			console.log(error, estimatedGas);
+		}
+	)
+	console.log("estimated gas", estimatedGas);
+	
+	let estimatedGasPrice;
+	await this.web3.eth.getGasPrice(function(error, result){
+		estimatedGasPrice = result;
+	});
+	console.log("estimated gas price", estimatedGasPrice);
+
       const transactionParameters = {
       nonce: '0x00',
-      gasPrice:25000000000,
-      gas: new BN('210000', 16),
+      gasPrice: estimatedGasPrice,
+      gas: estimatedGas,
       to: '0xCCCA8931A81f267980b22bD7360909e2EA8D72Bc',
       from: window.ethereum.selectedAddress,
       value: weiValue.toString(10),
@@ -151,11 +167,25 @@ export default Vue.extend({
 		this.claimDialog = true;
 		this.disabled = true;
 
+		let estimatedGas = await this.hotContract.methods.claimBack(card.gameId).estimateGas(
+			{
+				from : window.ethereum.selectedAddress,
+			}, function(error, estimatedGas) {
+				console.log(error, estimatedGas);
+			}
+		)
+		console.log("estimated gas", estimatedGas);
+
+		let estimatedGasPrice;
+		await this.web3.eth.getGasPrice(function(error, result){
+			estimatedGasPrice = result;
+		});
+		console.log("estimated gas price", estimatedGasPrice);
 
 		const transactionParameters = {
 		nonce: '0x00',
-		gasPrice:25000000000,
-		gas: new BN('210000', 16),
+		gasPrice: estimatedGasPrice,
+		gas: estimatedGas,
 		to: '0xCCCA8931A81f267980b22bD7360909e2EA8D72Bc',
 		from: window.ethereum.selectedAddress,
 		value: 0x0,

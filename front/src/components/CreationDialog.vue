@@ -54,6 +54,7 @@
 import BN from 'bn.js';
 import Vue from 'vue';
 import Web3 from 'web3';
+// const { ethers } = require("ethers");
 
 export default Vue.extend({
     name: 'CreationDialog',
@@ -71,7 +72,6 @@ export default Vue.extend({
             fee: null,
             web3: null,
             hotContract: null,
-            hotInstance: null,
 			snackText: '',
 			snackbar: false,
 			snackColor: "green",
@@ -91,16 +91,52 @@ export default Vue.extend({
             await this.hotContract.methods.getFee().call().then((resp) => this.fee = resp);
 			let weiPrice = new BN(Web3.utils.toWei(this.price));
 			let weiValue = weiPrice.add(new BN(this.fee, 10));
-			console.log(weiValue.toString(10));
+			// console.log(weiValue.toString(10));
 			
+
+			// const provider = new ethers.providers.Web3Provider(window.ethereum);
+			// const signer = provider.getSigner();
+			// const contract = new ethers.Contract('0x643e87c156A02D6c5796C58cD7539E9F357448D2', abi, signer);
+
+			// // const estimatedGasLimit = await contract.estimateGas.createHotGame(this.gameId, weiPrice.toString(10));
+			// const approveTxUnsigned = await contract.populateTransaction.createHotGame(this.gameId, weiPrice.toString(10));
+			// approveTxUnsigned.chainId = this.$store.getters.getChainId;
+			// approveTxUnsigned.gasLimit = new BN('210000', 16);
+			// approveTxUnsigned.gasPrice = await provider.getGasPrice();
+			// approveTxUnsigned.value = weiValue.toString(10);
+			// approveTxUnsigned.nonce = await provider.getTransactionCount(window.ethereum.selectedAddress);
+
+			// const approveTxSigned = await signer.signTransaction(approveTxUnsigned);
+			// const submittedTx = await provider.sendTransaction(approveTxSigned);
+			// const approveReceipt = await submittedTx.wait();
+			// if (approveReceipt.status === 0)
+			// 	throw new Error("Approve transaction failed");
+			// console.log(approveTxUnsigned);
+
+			let estimatedGas = await this.hotContract.methods.createHotGame(this.gameId, weiPrice.toString(10)).estimateGas(
+				{
+					from : window.ethereum.selectedAddress,
+					value : weiValue.toString(10),
+				}, function(error, estimatedGas) {
+					console.log(error, estimatedGas);
+				}
+			)
+			console.log("estimated gas", estimatedGas);
+			
+			let estimatedGasPrice;
+			await this.web3.eth.getGasPrice(function(error, result){
+				estimatedGasPrice = result;
+			});
+			console.log("estimated gas price", estimatedGasPrice);
+
             const transactionParameters = {
             nonce: '0x00', // ignored by MetaMask
-            gasPrice:25000000000, // customizable by user during MetaMask confirmation.
-            gas: new BN('210000', 16), // gas Limit customizable by user during MetaMask confirmation.
+            gasPrice: estimatedGasPrice, // customizable by user during MetaMask confirmation.
+            gas: estimatedGas, // gas Limit customizable by user during MetaMask confirmation.
             to: '0xCCCA8931A81f267980b22bD7360909e2EA8D72Bc', // Required except during contract publications.
             from: window.ethereum.selectedAddress, // must match user's active address.
             value: weiValue.toString(10),
-            chainId: '0xa869', // Used to prevent transaction reuse across blockchains. Auto-filled by MetaMask.
+            chainId: this.$store.getters.getChainId, // Used to prevent transaction reuse across blockchains. Auto-filled by MetaMask.
             };
 
             await this.hotContract.methods.createHotGame(this.gameId, weiPrice.toString(10)).send(transactionParameters).then((resp) => {
