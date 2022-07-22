@@ -17,19 +17,20 @@
         <v-col cols="6" v-for="(card, index) in cards" :key="index">
           <v-card id="hotCard" width="100%" color="primary">
             <v-img class="" src="../assets/bitcoin-token.jpg" height="200" gradient="to bottom, rgba(0,0,0,.3), rgba(0,0,0,.5)">
-              <v-card-title class="ml-5">
-                <v-icon>mdi-account</v-icon>
+              <div>
+                <div class="ml-4 mt-5 text-button">
+                <v-icon>mdi-account </v-icon>
                 <span style="font-size: 12px;"> {{card.gameSubmitter.slice(0, 5) + '...' + card.gameSubmitter.slice(38)}} </span>
-              </v-card-title>
-              <v-card-subtitle class="ml-5 mb-n5 font-weight-bold d-flex flex-row">
+              </div>
+              <div class="text-subtitle-2 ml-5">
                 for {{card.gamePrice}}
-                <span class="mx-2"><v-img src="https://s2.coinmarketcap.com/static/img/coins/64x64/5805.png" width="20px"></v-img> </span>
-                (= {{ (card.gamePrice * $store.getters.getAvaxPrice).toFixed(2) }} $)
-              </v-card-subtitle>
-              <v-card-subtitle class="ml-5">
-                ID : {{card.gameId.slice(0, 7) + '...' + card.gameId.slice(card.gameId.length - 5)}}
-              </v-card-subtitle>
-              <v-card-subtitle>
+                <div style="display:inline-block"><v-img src="https://s2.coinmarketcap.com/static/img/coins/64x64/5805.png" width="15px"></v-img> </div>
+                (={{ (card.gamePrice * $store.getters.getAvaxPrice).toFixed(2) }}$)
+              </div>
+              <div class="text-subtitle-2 ml-5">
+                ID: {{card.gameId.slice(0, 7) + '...' + card.gameId.slice(card.gameId.length - 5)}}
+              </div>
+              <v-card-subtitle class="mt-2">
                 <v-btn v-if="acc" @click="playGame(card)" :disabled="disabled"
                   color="green"
                   class="mb-sm-5 mt-n5 ml-5">
@@ -64,6 +65,7 @@
 
                 <v-btn @click="claimBack(card)" color="red" :disabled="!(card.gameSubmitter == acc)" width="120" class="mt-sm-n3 ml-sm-5 mb-6"> Claim Back </v-btn>
               </v-card-subtitle>
+              </div>
             </v-img>
           </v-card>
         </v-col>

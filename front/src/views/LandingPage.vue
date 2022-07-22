@@ -25,12 +25,12 @@
       </v-col>
 
       <v-col class="mb-4" cols="12">
-        <v-btn to="/Browser" color="green" x-large height="200" width="400" class="text-h1"> PLAY </v-btn>
+        <v-btn to="/Browser" color="green" height="150" width="350" class="text-h1"> PLAY </v-btn>
       </v-col>
 
     </v-row>
 
-    <div class="d-flex flex-row justify-center mt-5">
+    <div class="d-sm-flex flex-row justify-center mt-5">
       <h2 class="mr-1">Requirements: </h2>
         <ul>
           <li class=""> Connect your Metamask Wallet <div style="display:inline-block" > <v-img class="pb-3" width="25" contain src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/36/MetaMask_Fox.svg/1200px-MetaMask_Fox.svg.png"></v-img> </div> </li>

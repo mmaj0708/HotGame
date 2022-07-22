@@ -3,8 +3,11 @@
     <v-app-bar app dark class="container-fluid">
       <div class="d-flex d-flex flex-row">
         <v-toolbar-title>
-          <v-btn to="/" tile text x-large class="mr-5 pa-1" style="font-size: 30px">
+          <v-btn id="bigTitle" to="/" tile text x-large class="mr-5 pa-1" style="font-size: 30px">
             HOT.IO <v-icon>mdi-fire</v-icon>
+          </v-btn>
+          <v-btn id="littleTitle" to="/" tile text class="mr-2" style="font-size: 30px">
+            <v-icon>mdi-fire</v-icon>
           </v-btn>
         </v-toolbar-title>
       </div>
@@ -773,6 +776,19 @@ export default {
 </script>
 
 <style>
+
+@media screen and (max-width: 600px) {
+#bigTitle {
+	display: none;
+}
+}
+
+@media screen and (min-width: 600px) {
+#littleTitle {
+	display: none;
+}
+}
+
 ::-webkit-scrollbar-track
 {
 	-webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
