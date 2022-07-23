@@ -236,7 +236,7 @@ export default Vue.extend({
               gamePrice: Web3.utils.fromWei(response[i].bet),
               gameStatus: "GAME_STATUS_IN_BACK",
               gameSubmitter: response[i].submitter.toLowerCase(),
-              gameSubmitTime: date.getDate() + '/' + date.getMonth() + '/' + date.getFullYear() + ' ' + date.getHours() + 'h' + date.getMinutes() + 'm' + date.getSeconds() + 's'
+              gameSubmitTime: date.getDate().toLocaleString('en-US', {minimumIntegerDigits: 2}) + '/' + date.getMonth().toLocaleString('en-US', {minimumIntegerDigits: 2}) + '/' + date.getFullYear() + ' ' + date.getHours() + 'h' + date.getMinutes().toLocaleString('en-US', {minimumIntegerDigits: 2})
             });
         }
       });
