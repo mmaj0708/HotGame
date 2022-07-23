@@ -49,7 +49,7 @@
                   <v-dialog v-model="dialog" persistent width="300">
                     <v-card color="primary" dark>
                       <v-card-text>
-                        Connecting to metamask, <br> fee are currently {{ fee * Math.pow(10, -18) }} AVAX
+                        Connecting to metamask, <br> Randomness fee: {{ fee * Math.pow(10, -18) }} AVAX
                         <v-progress-linear
                           indeterminate
                           color="white"

@@ -83,7 +83,9 @@
     <v-footer padless>
       <v-col class="text-center" cols="12">
         {{ new Date().getFullYear() }} — <strong>Hot Games </strong>
-        <v-btn :disabled="acc != '0x08e01f14587a80ded1f1180a6c883c42a7c20913'" @click="setFee()" height="15" width="90" style="font-size: 10px;"> chainlink fee</v-btn>
+        <v-btn :disabled="acc != '0x08e01f14587a80ded1f1180a6c883c42a7c20913'" @click="setFee()" height="15" width="100" style="font-size: 10px;">
+			Randomness fee
+		</v-btn>
       </v-col>
       
     </v-footer>

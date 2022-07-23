@@ -20,7 +20,7 @@
 
             <v-card-text class="">
                Gas fee : 0.05 AVAX (= 0.1$) <br>
-               Transaction fee : {{(this.fee * Math.pow(10, -18)).toFixed(18)}} AVAX
+               Randomness fee : {{(this.fee * Math.pow(10, -18)).toFixed(18)}} AVAX
             </v-card-text>
 
             <v-divider></v-divider>
