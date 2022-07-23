@@ -138,8 +138,12 @@ export default Vue.extend({
 	});
 	console.log("estimated gas price", estimatedGasPrice);
 
+	let nonce;
+	await this.web3.eth.getTransactionCount(window.ethereum.selectedAddress).then(resp => nonce = resp)
+	console.log("nonce", nonce);
+
       const transactionParameters = {
-      nonce: '0x00',
+      nonce: nonce,
       gasPrice: estimatedGasPrice,
       gas: estimatedGas,
       to: '0xCCCA8931A81f267980b22bD7360909e2EA8D72Bc',
@@ -182,8 +186,12 @@ export default Vue.extend({
 		});
 		console.log("estimated gas price", estimatedGasPrice);
 
+		let nonce;
+		await this.web3.eth.getTransactionCount(window.ethereum.selectedAddress).then(resp => nonce = resp)
+		console.log("nonce", nonce);
+
 		const transactionParameters = {
-		nonce: '0x00',
+		nonce: nonce,
 		gasPrice: estimatedGasPrice,
 		gas: estimatedGas,
 		to: '0xCCCA8931A81f267980b22bD7360909e2EA8D72Bc',
