@@ -14,13 +14,14 @@
 
         <v-menu open-on-hover bottom offset-y>
           <template v-slot:activator="{ on, attrs }">
-            <v-btn to="/browser" color="green" dark v-bind="attrs" v-on="on">
+            <v-btn color="green" dark v-bind="attrs" v-on="on">
               BET
             </v-btn>
           </template>
 
           <v-list>
-            <v-list-item>
+			SOON!
+            <!-- <v-list-item>
                 <v-btn color="green" to="/browser">
                   Browse Games
                 </v-btn>
@@ -34,7 +35,7 @@
 				<v-btn color="green" to="/history">
                   History
 				</v-btn>
-            </v-list-item>
+            </v-list-item> -->
           </v-list>
         </v-menu>
 
@@ -66,7 +67,10 @@
 
       <v-spacer></v-spacer>
 
-      <v-btn v-if="!isUserAccount" :disabled="disabled" :loading="loading" @click="connectWallet" color="primary">
+      <v-btn id="metamaskBrowser" v-if="!isUserAccount && !isMetamask() && isMobile()" color="primary">
+        Metamask Browser <div style="display:inline-block" > <v-img class="pb-3" width="25" contain src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/36/MetaMask_Fox.svg/1200px-MetaMask_Fox.svg.png"></v-img> </div>
+      </v-btn>
+      <v-btn id="connectWallet" v-if="!isUserAccount" class="ml-1" :disabled="disabled" :loading="loading" @click="connectWallet" color="primary">
         connect wallet
       </v-btn>
       <v-btn elevation="0" v-if="isUserAccount" tile text color="primary">
@@ -123,7 +127,7 @@ export default {
       nonce: '0x00',
       gasPrice:25000000000,
       gas: new BN('210000', 16),
-      to: '0xCCCA8931A81f267980b22bD7360909e2EA8D72Bc',
+      to: this.$store.getters.getTestNetContractAddr,
       from: window.ethereum.selectedAddress,
       value: 0x0,
       chainId: '0x3',
@@ -171,7 +175,16 @@ export default {
       let userAccount = await window.ethereum.request({method: 'eth_accounts'});
       this.$store.commit('setUserAccount', userAccount[0]);
       this.acc = userAccount[0].toLowerCase();
-    }
+    },
+
+	isMobile() {
+		console.log(navigator.userAgentData.mobile);
+		return navigator.userAgentData.mobile;
+	},
+	isMetamask() {
+		console.log(window.ethereum.isMetaMask);
+		return window.ethereum.isMetaMask;
+	},
   },
   computed: {
     userAccount() {
@@ -189,577 +202,7 @@ export default {
       this.web3 = new Web3(window.ethereum);
 
       this.hotContract = new this.web3.eth.Contract(
-      [
-	{
-		"inputs": [
-			{
-				"internalType": "string",
-				"name": "gameIdClaimed",
-				"type": "string"
-			}
-		],
-		"name": "claimBack",
-		"outputs": [],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "string",
-				"name": "gameId",
-				"type": "string"
-			},
-			{
-				"internalType": "uint256",
-				"name": "bet",
-				"type": "uint256"
-			}
-		],
-		"name": "createHotGame",
-		"outputs": [],
-		"stateMutability": "payable",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "uint256",
-				"name": "fee",
-				"type": "uint256"
-			},
-			{
-				"internalType": "uint64",
-				"name": "subscriptionId",
-				"type": "uint64"
-			}
-		],
-		"stateMutability": "nonpayable",
-		"type": "constructor"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "address",
-				"name": "have",
-				"type": "address"
-			},
-			{
-				"internalType": "address",
-				"name": "want",
-				"type": "address"
-			}
-		],
-		"name": "OnlyCoordinatorCanFulfill",
-		"type": "error"
-	},
-	{
-		"anonymous": false,
-		"inputs": [
-			{
-				"components": [
-					{
-						"internalType": "string",
-						"name": "gameId",
-						"type": "string"
-					},
-					{
-						"internalType": "address",
-						"name": "submitter",
-						"type": "address"
-					},
-					{
-						"internalType": "address",
-						"name": "player",
-						"type": "address"
-					},
-					{
-						"internalType": "uint256",
-						"name": "bet",
-						"type": "uint256"
-					},
-					{
-						"internalType": "uint256",
-						"name": "submitTime",
-						"type": "uint256"
-					},
-					{
-						"internalType": "uint256",
-						"name": "randomRequestId",
-						"type": "uint256"
-					},
-					{
-						"internalType": "uint256",
-						"name": "randomNumber",
-						"type": "uint256"
-					},
-					{
-						"internalType": "address",
-						"name": "winner",
-						"type": "address"
-					},
-					{
-						"internalType": "enum HotGame.gameStatus",
-						"name": "status",
-						"type": "uint8"
-					}
-				],
-				"indexed": false,
-				"internalType": "struct HotGame.GameData",
-				"name": "",
-				"type": "tuple"
-			}
-		],
-		"name": "HotGameClaimBack",
-		"type": "event"
-	},
-	{
-		"anonymous": false,
-		"inputs": [
-			{
-				"components": [
-					{
-						"internalType": "string",
-						"name": "gameId",
-						"type": "string"
-					},
-					{
-						"internalType": "address",
-						"name": "submitter",
-						"type": "address"
-					},
-					{
-						"internalType": "address",
-						"name": "player",
-						"type": "address"
-					},
-					{
-						"internalType": "uint256",
-						"name": "bet",
-						"type": "uint256"
-					},
-					{
-						"internalType": "uint256",
-						"name": "submitTime",
-						"type": "uint256"
-					},
-					{
-						"internalType": "uint256",
-						"name": "randomRequestId",
-						"type": "uint256"
-					},
-					{
-						"internalType": "uint256",
-						"name": "randomNumber",
-						"type": "uint256"
-					},
-					{
-						"internalType": "address",
-						"name": "winner",
-						"type": "address"
-					},
-					{
-						"internalType": "enum HotGame.gameStatus",
-						"name": "status",
-						"type": "uint8"
-					}
-				],
-				"indexed": false,
-				"internalType": "struct HotGame.GameData",
-				"name": "",
-				"type": "tuple"
-			},
-			{
-				"indexed": false,
-				"internalType": "address",
-				"name": "",
-				"type": "address"
-			}
-		],
-		"name": "HotGameFinished",
-		"type": "event"
-	},
-	{
-		"anonymous": false,
-		"inputs": [
-			{
-				"components": [
-					{
-						"internalType": "string",
-						"name": "gameId",
-						"type": "string"
-					},
-					{
-						"internalType": "address",
-						"name": "submitter",
-						"type": "address"
-					},
-					{
-						"internalType": "address",
-						"name": "player",
-						"type": "address"
-					},
-					{
-						"internalType": "uint256",
-						"name": "bet",
-						"type": "uint256"
-					},
-					{
-						"internalType": "uint256",
-						"name": "submitTime",
-						"type": "uint256"
-					},
-					{
-						"internalType": "uint256",
-						"name": "randomRequestId",
-						"type": "uint256"
-					},
-					{
-						"internalType": "uint256",
-						"name": "randomNumber",
-						"type": "uint256"
-					},
-					{
-						"internalType": "address",
-						"name": "winner",
-						"type": "address"
-					},
-					{
-						"internalType": "enum HotGame.gameStatus",
-						"name": "status",
-						"type": "uint8"
-					}
-				],
-				"indexed": false,
-				"internalType": "struct HotGame.GameData",
-				"name": "",
-				"type": "tuple"
-			}
-		],
-		"name": "NewHotGame",
-		"type": "event"
-	},
-	{
-		"anonymous": false,
-		"inputs": [
-			{
-				"indexed": true,
-				"internalType": "address",
-				"name": "previousOwner",
-				"type": "address"
-			},
-			{
-				"indexed": true,
-				"internalType": "address",
-				"name": "newOwner",
-				"type": "address"
-			}
-		],
-		"name": "OwnershipTransferred",
-		"type": "event"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "string",
-				"name": "gameIdToPlay",
-				"type": "string"
-			}
-		],
-		"name": "playHotGame",
-		"outputs": [],
-		"stateMutability": "payable",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "uint256",
-				"name": "requestId",
-				"type": "uint256"
-			},
-			{
-				"internalType": "uint256[]",
-				"name": "randomWords",
-				"type": "uint256[]"
-			}
-		],
-		"name": "rawFulfillRandomWords",
-		"outputs": [],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"inputs": [],
-		"name": "renounceOwnership",
-		"outputs": [],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "uint256",
-				"name": "newFee",
-				"type": "uint256"
-			}
-		],
-		"name": "setFee",
-		"outputs": [],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "address",
-				"name": "newOwner",
-				"type": "address"
-			}
-		],
-		"name": "transferOwnership",
-		"outputs": [],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "string",
-				"name": "",
-				"type": "string"
-			}
-		],
-		"name": "games",
-		"outputs": [
-			{
-				"internalType": "string",
-				"name": "gameId",
-				"type": "string"
-			},
-			{
-				"internalType": "address",
-				"name": "submitter",
-				"type": "address"
-			},
-			{
-				"internalType": "address",
-				"name": "player",
-				"type": "address"
-			},
-			{
-				"internalType": "uint256",
-				"name": "bet",
-				"type": "uint256"
-			},
-			{
-				"internalType": "uint256",
-				"name": "submitTime",
-				"type": "uint256"
-			},
-			{
-				"internalType": "uint256",
-				"name": "randomRequestId",
-				"type": "uint256"
-			},
-			{
-				"internalType": "uint256",
-				"name": "randomNumber",
-				"type": "uint256"
-			},
-			{
-				"internalType": "address",
-				"name": "winner",
-				"type": "address"
-			},
-			{
-				"internalType": "enum HotGame.gameStatus",
-				"name": "status",
-				"type": "uint8"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [],
-		"name": "getContractStock",
-		"outputs": [
-			{
-				"internalType": "uint256",
-				"name": "",
-				"type": "uint256"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [],
-		"name": "getFee",
-		"outputs": [
-			{
-				"internalType": "uint256",
-				"name": "",
-				"type": "uint256"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [],
-		"name": "getGameIds",
-		"outputs": [
-			{
-				"internalType": "string[]",
-				"name": "",
-				"type": "string[]"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "string",
-				"name": "status",
-				"type": "string"
-			}
-		],
-		"name": "getGames",
-		"outputs": [
-			{
-				"components": [
-					{
-						"internalType": "string",
-						"name": "gameId",
-						"type": "string"
-					},
-					{
-						"internalType": "address",
-						"name": "submitter",
-						"type": "address"
-					},
-					{
-						"internalType": "address",
-						"name": "player",
-						"type": "address"
-					},
-					{
-						"internalType": "uint256",
-						"name": "bet",
-						"type": "uint256"
-					},
-					{
-						"internalType": "uint256",
-						"name": "submitTime",
-						"type": "uint256"
-					},
-					{
-						"internalType": "uint256",
-						"name": "randomRequestId",
-						"type": "uint256"
-					},
-					{
-						"internalType": "uint256",
-						"name": "randomNumber",
-						"type": "uint256"
-					},
-					{
-						"internalType": "address",
-						"name": "winner",
-						"type": "address"
-					},
-					{
-						"internalType": "enum HotGame.gameStatus",
-						"name": "status",
-						"type": "uint8"
-					}
-				],
-				"internalType": "struct HotGame.GameData[]",
-				"name": "",
-				"type": "tuple[]"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [],
-		"name": "owner",
-		"outputs": [
-			{
-				"internalType": "address",
-				"name": "",
-				"type": "address"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "uint256",
-				"name": "",
-				"type": "uint256"
-			}
-		],
-		"name": "randReq",
-		"outputs": [
-			{
-				"internalType": "string",
-				"name": "gameId",
-				"type": "string"
-			},
-			{
-				"internalType": "address",
-				"name": "submitter",
-				"type": "address"
-			},
-			{
-				"internalType": "address",
-				"name": "player",
-				"type": "address"
-			},
-			{
-				"internalType": "uint256",
-				"name": "bet",
-				"type": "uint256"
-			},
-			{
-				"internalType": "uint256",
-				"name": "submitTime",
-				"type": "uint256"
-			},
-			{
-				"internalType": "uint256",
-				"name": "randomRequestId",
-				"type": "uint256"
-			},
-			{
-				"internalType": "uint256",
-				"name": "randomNumber",
-				"type": "uint256"
-			},
-			{
-				"internalType": "address",
-				"name": "winner",
-				"type": "address"
-			},
-			{
-				"internalType": "enum HotGame.gameStatus",
-				"name": "status",
-				"type": "uint8"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	}
-        ], '0x643e87c156A02D6c5796C58cD7539E9F357448D2'
-      );
+      this.$store.getters.getTestNetContractABI, this.$store.getters.getTestNetContractAddr);
 
       await this.hotContract.methods.getFee().call().then((resp) => this.fee = resp);
     //   console.log(window.ethereum);
@@ -787,6 +230,7 @@ export default {
 #littleTitle {
 	display: none;
 }
+
 }
 
 ::-webkit-scrollbar-track

@@ -40,7 +40,10 @@
     </div>
 
     <h3 class="text-center mt-5">
-      ⚠️ The game is currently not working on mobile device !
+      <v-icon class="mb-2"> mdi-cellphone-information </v-icon>MOBILE DEVICE<v-icon class="mb-2"> mdi-cellphone-information </v-icon> <br>
+      <v-btn href="https://metamask.app.link/dapp/hot-game.vercel.app/" color="primary">
+        <v-icon class=""> mdi-subdirectory-arrow-right </v-icon> Go to Metamask Browser <div style="display:inline-block" > <v-img class="pb-3" width="25" contain src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/36/MetaMask_Fox.svg/1200px-MetaMask_Fox.svg.png"></v-img> </div>
+      </v-btn>
     </h3>
 
     <div class="ml-5 mt-5">
@@ -49,7 +52,7 @@
         This is a fully decentralized Head or Tails game build on the Avalanche blockchain,
         working with Metamask Wallets. <br> <br>
         
-        You can currently win AVAX with a 50% chance of winning, betting with others players. <br>
+        You can currently win AVAX with a 50% win rate, betting with others players. <br>
         All created games are stored in the blockchain, waiting for someone to gamble with. <br> <br>
 
         The BET BROWSER section allows you to see the currently available bets on the smart contract and play. <br>
@@ -59,6 +62,9 @@
 
         You always have the possibility to cancel your game later and get back your AVAX, but you will need the
         Metamask address that you used to create the game, and additionnaly, it will just cost you the gas fee. <br> <br>
+
+        You have the possibility to test the game as much as you want by adding the <a href="https://hurricaneswap.medium.com/tutorial-for-hurricaneswap-testnet-ce57c14ee652">Fuji test network</a>. <br>
+        Get some faucet here : <a href="https://faucet.avax.network/">https://faucet.avax.network</a>. <br> <br>
 
         Each random number is generated using <a href="https://docs.chain.link/docs/intermediates-tutorial/"> Chainlink VRF</a>,
         which means it is a truly provable random number who is generated for each game. <br> 
