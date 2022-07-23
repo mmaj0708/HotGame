@@ -19,8 +19,8 @@
           The next decentralized gambling game for players
         </h2>
         <h3 class="font-weight-regular mt-1 mb-n5">
-          <a href="">Smart Contract code</a> <br>
-          <a href="">See on Avalanche</a>
+          <a href="https://github.com/mmaj0708/HotGame/blob/main/HotContract.sol">Smart Contract code</a> <br>
+          <a href="https://testnet.snowtrace.io/address/0x43830B93EF072b6FB72231e176EC11272561d60A">See on Avalanche</a>
         </h3>
       </v-col>
 
