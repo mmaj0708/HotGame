@@ -72,7 +72,7 @@
         which means it is a truly provable random number who is generated for each game. <br> 
         Pure randomness comes with a cost, and in order to play HOT games, you have to pay a randomness fee that will feed the Chainlink contract. <br> <br>
 
-        Feel free to ask anything or make any feedback on the <a href=""> discord community</a> and we will answer as soon as possible.
+        Feel free to ask anything or make any feedback on the <a href="https://discord.gg/nmAhk9jnFz"> discord community</a> and we will answer as soon as possible.
       </p>
     </div>
   </v-container>
