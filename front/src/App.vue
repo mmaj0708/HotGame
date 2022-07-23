@@ -67,7 +67,7 @@
 
       <v-spacer></v-spacer>
 
-      <v-btn id="metamaskBrowser" v-if="!isUserAccount && !isMetamask() && isMobile()" color="primary">
+      <v-btn id="metamaskBrowser" v-if="!isUserAccount && isMobile()" color="primary">
         Metamask Browser <div style="display:inline-block" > <v-img class="pb-3" width="25" contain src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/36/MetaMask_Fox.svg/1200px-MetaMask_Fox.svg.png"></v-img> </div>
       </v-btn>
       <v-btn id="connectWallet" v-if="!isUserAccount" class="ml-1" :disabled="disabled" :loading="loading" @click="connectWallet" color="primary">
