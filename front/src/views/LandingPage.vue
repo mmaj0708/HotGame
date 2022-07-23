@@ -24,14 +24,14 @@
         </h3>
       </v-col>
 
-      <!-- <v-col v-if="isMobile()" class="" cols="12">
-      <h3 class="text-center mt-5">
+      <v-col cols="12">
+      <h3 class="text-center">
         <v-icon class="mb-2"> mdi-cellphone-information </v-icon>MOBILE DEVICE<v-icon class="mb-2"> mdi-cellphone-information </v-icon> <br>
         <v-btn href="https://metamask.app.link/dapp/hot-game.vercel.app/" color="primary">
           <v-icon class=""> mdi-subdirectory-arrow-right </v-icon> Go to Metamask Browser <div style="display:inline-block" > <v-img class="pb-3" width="25" contain src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/36/MetaMask_Fox.svg/1200px-MetaMask_Fox.svg.png"></v-img> </div>
         </v-btn>
       </h3>
-      </v-col> -->
+      </v-col>
       
       <v-col class="mb-4" cols="12">
         <v-btn to="/Browser" color="green" height="150" width="350" class="text-h1"> PLAY </v-btn>
