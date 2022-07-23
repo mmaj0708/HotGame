@@ -41,7 +41,7 @@
 
         <v-menu open-on-hover bottom offset-y>
           <template v-slot:activator="{ on, attrs }">
-            <v-btn class="ml-2" to="/browser" color="primary" dark v-bind="attrs" v-on="on">
+            <v-btn class="ml-1" to="/browser" color="primary" dark v-bind="attrs" v-on="on">
               test
             </v-btn>
           </template>
