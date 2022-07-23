@@ -15,8 +15,7 @@
 			Please ensure :
 			<ul>
 				<li>You have metamask connected</li>
-				<li>You selected the correct AVAX network </li>
-				<li>Fuji Chain network is for testing</li>
+				<li>Fuji Chain network is selected</li>
 				<li>Mobile device need to browse through Metamask Browser</li>
 			</ul>
 		</div>

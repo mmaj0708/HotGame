@@ -43,7 +43,8 @@
       <h2 class="mr-1">Requirements: </h2>
         <ul>
           <li class=""> Connect your Metamask Wallet <div style="display:inline-block" > <v-img class="pb-3" width="25" contain src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/36/MetaMask_Fox.svg/1200px-MetaMask_Fox.svg.png"></v-img> </div> </li>
-          <li class="mt-1"> Add <a href="https://medium.com/seedify/how-to-add-an-avalanche-c-chain-rpc-to-metamask-e8f08979a8a8"> C-Chain network</a> (real mode) or <a href="https://hurricaneswap.medium.com/tutorial-for-hurricaneswap-testnet-ce57c14ee652">Fuji testnet</a> (test mode) </li>
+          <!-- <li class="mt-1"> Add <a href="https://medium.com/seedify/how-to-add-an-avalanche-c-chain-rpc-to-metamask-e8f08979a8a8"> C-Chain network</a> (real mode) or <a href="https://hurricaneswap.medium.com/tutorial-for-hurricaneswap-testnet-ce57c14ee652">Fuji testnet</a> (test mode) </li> -->
+          <li class="mt-1"> Add <a href="https://hurricaneswap.medium.com/tutorial-for-hurricaneswap-testnet-ce57c14ee652">Fuji testnet</a> network (test mode) </li>
           <li> Win some AVAX <div style="display:inline-block" > <v-img class="pb-3" width="25" contain src="https://s2.coinmarketcap.com/static/img/coins/64x64/5805.png"></v-img> </div> </li>
         </ul>
     </div>
