@@ -42,6 +42,7 @@ contract HotGame is VRFConsumerBaseV2, Ownable {
         address player;             // first player who created the game
         uint256 bet;                // bet value, set in wei
         uint256 submitTime;         // Timestamp of the launching game
+        uint256 closingTime;        // Timestamp of the closing time
         uint256 randomRequestId;    // request ID to identify for which game is the random number
         uint256 randomNumber;       // True provable random number generated with chainlink
         address winner;             // winner of the game
@@ -103,12 +104,11 @@ contract HotGame is VRFConsumerBaseV2, Ownable {
 
     function createHotGame(string memory gameId, uint256 bet) public payable {
         require(bet > 0, "bet must be superior to zero");
-        // require(gameId.length > 100, "game Id is too long");
         require(games[gameId].submitter == address(0), "game Id already exist");
         require(msg.value - _fee == bet, "value is not fitting bet");
         payable(_owner).transfer(_fee);
         GameData memory newGame;
-        newGame = GameData(gameId, msg.sender, address(0), bet, block.timestamp, 0, 0, address(0), gameStatus.CREATED);
+        newGame = GameData(gameId, msg.sender, address(0), bet, block.timestamp, 0, 0, 0, address(0), gameStatus.CREATED);
 
         games[gameId] = newGame;
         gameIdTab.push(gameId);
@@ -125,6 +125,7 @@ contract HotGame is VRFConsumerBaseV2, Ownable {
         payable(_owner).transfer(_fee);
 
         games[gameIdToPlay].randomRequestId = requestRandomWords();
+        games[gameIdToPlay].closingTime = block.timestamp;
         randReq[games[gameIdToPlay].randomRequestId] = games[gameIdToPlay]; // map the requestId to the game
         games[gameIdToPlay].status = gameStatus.RANDOM_REQUESTED;
 
@@ -138,6 +139,7 @@ contract HotGame is VRFConsumerBaseV2, Ownable {
         require(games[gameIdClaimed].status == gameStatus.CREATED);
 
         payable(msg.sender).transfer(games[gameIdClaimed].bet);
+        games[gameIdClaimed].closingTime = block.timestamp;
 
         emit HotGameClaimBack(games[gameIdClaimed]);
         // delete games[gameIdClaimed];
